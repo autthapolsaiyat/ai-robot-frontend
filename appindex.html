@@ -16,7 +16,6 @@
             height: 100vh;
         }
         
-        /* Main Layout */
         .app-container {
             display: grid;
             grid-template-columns: 1fr 350px;
@@ -26,7 +25,6 @@
             padding: 2px;
         }
         
-        /* Left: Neural Network + Video */
         .player-section {
             background: #000;
             position: relative;
@@ -53,7 +51,6 @@
         #compositeCanvas { z-index: 2; }
         #videoPlayer { display: none; }
         
-        /* Title Overlay */
         .title-overlay {
             position: absolute;
             top: 20px;
@@ -75,7 +72,6 @@
             font-size: 1em;
         }
         
-        /* Video Controls Overlay */
         .video-controls {
             position: absolute;
             bottom: 30px;
@@ -112,7 +108,6 @@
             cursor: not-allowed;
         }
         
-        /* Right Gallery */
         .gallery-section {
             background: #000;
             border: 2px solid #00ff00;
@@ -165,12 +160,37 @@
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
         }
         
         .gallery-item:hover {
             border-color: #00ff00;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
             transform: translateX(-5px);
+        }
+        
+        .gallery-item.new {
+            border-color: #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+        
+        .new-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff0000;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            z-index: 10;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         
         .gallery-item video {
@@ -211,27 +231,58 @@
             opacity: 0.5;
         }
         
-        /* Notification */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0, 255, 0, 0.95);
+            background: linear-gradient(135deg, #00ff00 0%, #00aa00 100%);
             color: #000;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0, 255, 0, 1);
             font-weight: bold;
+            font-size: 18px;
             z-index: 1000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
+            transform: translateX(500px);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 3px solid #00ff00;
+            max-width: 400px;
         }
         
         .notification.show {
             transform: translateX(0);
         }
         
-        /* Scrollbar */
+        .notification-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #000;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .notification-title {
+            font-size: 20px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-icon {
+            font-size: 30px;
+        }
+        
+        .notification-body {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
         ::-webkit-scrollbar {
             width: 10px;
         }
@@ -245,7 +296,6 @@
             border-radius: 5px;
         }
         
-        /* Responsive */
         @media (max-width: 1024px) {
             .app-container {
                 grid-template-columns: 1fr;
@@ -287,7 +337,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Player Section (Left) -->
         <div class="player-section">
             <div class="neural-canvas-container">
                 <canvas id="bgCanvas" width="1920" height="1080"></canvas>
@@ -306,11 +355,10 @@
             </div>
         </div>
         
-        <!-- Gallery Section (Right) -->
         <div class="gallery-section">
             <div class="gallery-header">
                 <h2>📹 AI Report News</h2>
-                <button class="refresh-btn" onclick="loadGallery()">🔄</button>
+                <button class="refresh-btn" onclick="loadGallery()">🔄 Refresh</button>
             </div>
             <div class="gallery-grid" id="galleryGrid">
                 <div class="empty-gallery">
@@ -321,37 +369,41 @@
         </div>
     </div>
     
-    <!-- Notification -->
     <div class="notification" id="notification">
-        ✅ Video loaded!
+        <button class="notification-close" onclick="closeNotification()">×</button>
+        <div class="notification-title">
+            <span class="notification-icon" id="notificationIcon">🚨</span>
+            <span id="notificationTitle">มีเหตุใหม่เข้ามา!</span>
+        </div>
+        <div class="notification-body" id="notificationBody">
+            พร้อมรายงานจากหุ่นยนต์ AI
+        </div>
     </div>
 
     <script>
-        // API Configuration
-        const API_URL = 'http://10.147.19.244:4188';
+        // ✅ แก้: เพิ่มตัวแปรที่ขาด
+        const API_URL = ''; // ✅ ค่าว่างสำหรับ Demo
+        let lastKnownJobId = localStorage.getItem('lastKnownJobId') || null;
+        let isFirstLoad = true;
         
-        // Canvas Setup
         const bgCanvas = document.getElementById('bgCanvas');
         const bgCtx = bgCanvas.getContext('2d');
         const compositeCanvas = document.getElementById('compositeCanvas');
         const compositeCtx = compositeCanvas.getContext('2d');
         const video = document.getElementById('videoPlayer');
+        const playVideoBtn = document.getElementById('playVideoBtn');
+        const pauseVideoBtn = document.getElementById('pauseVideoBtn');
         
-        // State
         let isVideoLoaded = false;
         let isPlaying = false;
         let chromaEnabled = true;
         let sensitivity = 40;
         let smoothness = 15;
-        
-        // Gallery - เปลี่ยนจาก localStorage เป็นโหลดจาก Server
         let videoHistory = [];
         
-        // Canvas dimensions
         const CANVAS_WIDTH = 1920;
         const CANVAS_HEIGHT = 1080;
         
-        // Neural Network
         const layerColors = ['#00CCFF', '#9933FF', '#CC33FF', '#FF6600'];
         let neuralNodes = [];
         let neuralConnections = [];
@@ -474,7 +526,6 @@
                 }
             }
             
-            // Connections
             for (let i = 0; i < nodesPerLayer[0]; i++) {
                 const fromNode = neuralNodes[i];
                 for (let j = 0; j < nodesPerLayer[1]; j++) {
@@ -558,7 +609,6 @@
             }
         }
         
-        // Chroma Key
         function chromaKey(imageData) {
             const data = imageData.data;
             const threshold = sensitivity;
@@ -651,14 +701,9 @@
             requestAnimationFrame(animate);
         }
         
-        initNeuralNetwork();
-        animate();
-        
-        // Gallery - โหลดจาก Server API
         async function loadGallery() {
             const grid = document.getElementById('galleryGrid');
             
-            // Show loading
             grid.innerHTML = `
                 <div class="empty-gallery">
                     <div class="empty-gallery-icon">⏳</div>
@@ -667,75 +712,156 @@
             `;
             
             try {
-                // เรียก API เพื่อดึงรายการวิดีโอ
-                const response = await fetch(`${API_URL}/api/v1/jobs/list?limit=100`);
-                
-                if (!response.ok) {
-                    throw new Error('Failed to load gallery');
+                if (API_URL) {
+                    console.log('📂 Trying to load from API:', `${API_URL}/api/v1/jobs/list?limit=100`);
+                    
+                    const response = await fetch(`${API_URL}/api/v1/jobs/list?limit=100`, {
+                        signal: AbortSignal.timeout(3000)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        videoHistory = data.jobs || [];
+                        console.log('✅ Loaded from API:', videoHistory.length, 'videos');
+                        displayGallery(videoHistory);
+                        return;
+                    }
                 }
-                
-                const data = await response.json();
-                videoHistory = data.jobs || [];
-                
-                if (videoHistory.length === 0) {
-                    grid.innerHTML = `
-                        <div class="empty-gallery">
-                            <div class="empty-gallery-icon">🎬</div>
-                            <p>No videos in gallery</p>
-                            <p style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-                                Videos will appear here after generation
-                            </p>
-                        </div>
-                    `;
-                    return;
+            } catch (error) {
+                console.log('⚠️ Backend not available, using demo videos');
+            }
+            
+            console.log('📼 Loading demo videos');
+            videoHistory = [
+                {
+                    job_id: 'demo-real-1',
+                    text: 'สวัสดีครับ ยินดีต้อนรับสู่ระบบ AI Robot News Anchor',
+                    video_url: 'videos/real1.mp4',
+                    created_at: '2025-01-06T10:00:00Z'
+                },
+                {
+                    job_id: 'demo-real-2',
+                    text: 'Welcome to AI Robot News Anchor System with advanced features',
+                    video_url: 'videos/real2.mp4',
+                    created_at: '2025-01-06T11:00:00Z'
+                },
+                {
+                    job_id: 'demo-real-3',
+                    text: 'ระบบของเราสามารถสร้างวิดีโอข่าวอัตโนมัติได้อย่างมืออาชีพ',
+                    video_url: 'videos/real3.mp4',
+                    created_at: '2025-01-06T12:00:00Z'
+                },
+                {
+                    job_id: 'demo-real-4',
+                    text: 'คดีที่หนึ่ง วันที่เกิดเหตุ สอง ธันวาคม สองพันหนึ่ง',
+                    video_url: 'videos/real4.mp4',
+                    created_at: '2025-01-06T13:00:00Z'
+                },
+                {
+                    job_id: 'demo-real-5',
+                    text: 'รายงานข่าวสำคัญประจำวันจากระบบ AI อัจฉริยะ',
+                    video_url: 'videos/real5.mp4',
+                    created_at: '2025-01-06T14:00:00Z'
+                },
+                {
+                    job_id: 'demo-real-6',
+                    text: 'สรุปเหตุการณ์สำคัญที่เกิดขึ้นในวันนี้',
+                    video_url: 'videos/real6.mp4',
+                    created_at: '2025-01-06T15:00:00Z'
                 }
+            ];
+            
+            displayGallery(videoHistory);
+        }
+        
+        function displayGallery(videos) {
+            const grid = document.getElementById('galleryGrid');
+            
+            if (videos.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-gallery">
+                        <div class="empty-gallery-icon">🎬</div>
+                        <p>No videos in gallery</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const latestJob = videos[0];
+            const hasNewVideo = latestJob && latestJob.job_id !== lastKnownJobId;
+            
+            if (hasNewVideo && !isFirstLoad) {
+                console.log('🚨 NEW VIDEO DETECTED:', latestJob.job_id);
                 
-                grid.innerHTML = videoHistory.map((item, index) => `
-                    <div class="gallery-item" onclick="playGalleryVideo('${item.job_id}')">
+                showNotification(
+                    'มีเหตุใหม่เข้ามา!',
+                    `พร้อมรายงาน: ${latestJob.text.substring(0, 50)}...`
+                );
+                
+                setTimeout(() => {
+                    const videoUrl = latestJob.video_url || '';
+                    playGalleryVideo(latestJob.job_id, videoUrl);
+                }, 2000);
+                
+                lastKnownJobId = latestJob.job_id;
+                localStorage.setItem('lastKnownJobId', lastKnownJobId);
+            }
+            
+            if (isFirstLoad && latestJob) {
+                lastKnownJobId = latestJob.job_id;
+                localStorage.setItem('lastKnownJobId', lastKnownJobId);
+                isFirstLoad = false;
+            }
+            
+            grid.innerHTML = videos.map((item, index) => {
+                const isNew = index === 0 && item.job_id === latestJob.job_id && hasNewVideo;
+                const videoSrc = item.video_url 
+                    ? `${item.video_url}#t=0.5` 
+                    : `${API_URL}/api/v1/jobs/${item.job_id}/result#t=0.5`;
+                
+                return `
+                    <div class="gallery-item ${isNew ? 'new' : ''}" onclick="playGalleryVideo('${item.job_id}', '${item.video_url || ''}')">
+                        ${isNew ? '<div class="new-badge">NEW</div>' : ''}
                         <video preload="metadata">
-                            <source src="${API_URL}/api/v1/jobs/${item.job_id}/result#t=0.5" type="video/mp4">
+                            <source src="${videoSrc}" type="video/mp4">
                         </video>
                         <div class="gallery-item-info">
                             <div class="gallery-item-date">📅 ${new Date(item.created_at).toLocaleString('th-TH')}</div>
                             <div class="gallery-item-text">${item.text}</div>
                         </div>
                     </div>
-                `).join('');
-                
-            } catch (error) {
-                console.error('Failed to load gallery:', error);
-                grid.innerHTML = `
-                    <div class="empty-gallery">
-                        <div class="empty-gallery-icon">⚠️</div>
-                        <p style="color: #ff6600;">Failed to load gallery</p>
-                        <p style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-                            ${error.message}
-                        </p>
-                        <button class="refresh-btn" onclick="loadGallery()" style="margin-top: 15px;">
-                            🔄 Retry
-                        </button>
-                    </div>
                 `;
-            }
+            }).join('');
         }
         
-        function playGalleryVideo(job_id) {
-            const videoUrl = `${API_URL}/api/v1/jobs/${job_id}/result`;
-            video.src = videoUrl;
+        function playGalleryVideo(job_id, video_url = '') {
+            const videoSrc = video_url || `${API_URL}/api/v1/jobs/${job_id}/result`;
+            
+            console.log('▶️ Playing video:', videoSrc);
+            
+            video.src = videoSrc;
             video.load();
             video.addEventListener('loadedmetadata', () => {
                 isVideoLoaded = true;
                 playVideoBtn.disabled = false;
                 pauseVideoBtn.disabled = false;
-                video.play();
+                video.play().catch(e => console.warn('Play blocked:', e));
                 isPlaying = true;
-                showNotification('✅ Video loaded!');
-            });
+                showNotification('วิดีโอกำลังเล่น', 'รายงานข่าวจากหุ่นยนต์ AI');
+            }, { once: true });
         }
         
-        function showNotification(message) {
+        // ✅ แก้: รับ 2 parameters
+        function showNotification(title, body) {
             const notification = document.getElementById('notification');
-            notification.textContent = message;
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationTitle = document.getElementById('notificationTitle');
+            const notificationBody = document.getElementById('notificationBody');
+            
+            notificationIcon.textContent = '🚨';
+            notificationTitle.textContent = title;
+            notificationBody.textContent = body;
+            
             notification.classList.add('show');
             
             if (navigator.vibrate) {
@@ -743,19 +869,23 @@
             }
             
             setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+                closeNotification();
+            }, 8000);
         }
         
-        // Controls
-        document.getElementById('playVideoBtn').addEventListener('click', () => {
+        function closeNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.remove('show');
+        }
+        
+        playVideoBtn.addEventListener('click', () => {
             if (isVideoLoaded) {
                 video.play();
                 isPlaying = true;
             }
         });
         
-        document.getElementById('pauseVideoBtn').addEventListener('click', () => {
+        pauseVideoBtn.addEventListener('click', () => {
             if (isVideoLoaded) {
                 video.pause();
                 isPlaying = false;
@@ -774,10 +904,10 @@
             isPlaying = false;
         });
         
-        // Initialize
+        initNeuralNetwork();
+        animate();
         loadGallery();
         
-        // Auto-refresh gallery every 30 seconds from Server
         setInterval(() => {
             loadGallery();
         }, 30000);
