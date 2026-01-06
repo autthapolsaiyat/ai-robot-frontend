@@ -3,363 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Robot News Anchor - Demo</title>
+    <title>AI Robot News Anchor - System Demo</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            color: #0f0;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
-        
         .container {
-            background: white;
-            border-radius: 20px;
-            padding: 50px;
-            max-width: 950px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: fadeIn 0.5s ease-in;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
         h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 2.8em;
+            font-size: 3em;
             text-align: center;
+            margin: 40px 0;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
         }
-        
-        .subtitle {
-            color: #666;
-            margin-bottom: 40px;
-            font-size: 1.3em;
-            text-align: center;
-        }
-        
-        .status {
-            background: #d4edda;
-            border: 2px solid #28a745;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 30px;
-            text-align: center;
-            color: #155724;
-            font-weight: bold;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        .status.checking {
-            background: #fff3cd;
-            border-color: #ffc107;
-            color: #856404;
-        }
-        
-        .status.offline {
-            background: #f8d7da;
-            border-color: #dc3545;
-            color: #721c24;
-            animation: none;
-        }
-        
         .features {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin: 30px 0;
+            margin: 40px 0;
         }
-        
         .feature {
-            padding: 20px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid rgba(0, 255, 0, 0.3);
             border-radius: 10px;
-            border-left: 4px solid #667eea;
-            transition: transform 0.3s, box-shadow 0.3s;
+            padding: 20px;
+            text-align: center;
         }
-        
-        .feature:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-        }
-        
         .feature h3 {
-            color: #333;
-            margin-bottom: 8px;
-            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-size: 1.2em;
         }
-        
-        .feature p {
-            color: #666;
-            font-size: 0.95em;
-            line-height: 1.5;
+        .demo-section {
+            margin: 60px 0;
         }
-        
-        .demo-links {
+        .demo-section h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        .video-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-top: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
         }
-        
-        .demo-button {
+        .video-card {
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .video-card:hover {
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            transform: translateY(-5px);
+        }
+        .video-card video {
+            width: 100%;
             display: block;
+        }
+        .video-card-info {
+            padding: 15px;
+        }
+        .tech-stack {
+            margin: 60px 0;
             padding: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 10px;
+        }
+        .tech-stack h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .tech-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .tech-item {
+            padding: 10px;
+            background: rgba(0, 255, 0, 0.1);
+            border-radius: 5px;
+            text-align: center;
+        }
+        .cta {
+            text-align: center;
+            margin: 60px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 20px 40px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 3px solid #00ff00;
+            color: #00ff00;
             text-decoration: none;
             border-radius: 10px;
-            text-align: center;
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
-            transition: transform 0.3s, box-shadow 0.3s;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s;
+            margin: 10px;
         }
-        
-        .demo-button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.2);
-            transition: left 0.5s;
+        .btn:hover {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
         }
-        
-        .demo-button:hover::before {
-            left: 100%;
-        }
-        
-        .demo-button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
-        }
-        
-        .demo-button small {
-            display: block;
-            margin-top: 10px;
-            font-size: 0.65em;
-            opacity: 0.9;
-            font-weight: normal;
-        }
-        
-        .tech-stack {
-            margin-top: 40px;
-            padding: 25px;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        .notice {
+            background: rgba(255, 200, 0, 0.1);
+            border: 2px solid rgba(255, 200, 0, 0.5);
             border-radius: 10px;
-        }
-        
-        .tech-stack h3 {
-            color: #1976d2;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-        
-        .tech-stack ul {
-            columns: 2;
-            column-gap: 30px;
-            list-style: none;
-        }
-        
-        .tech-stack li {
-            margin-bottom: 10px;
-            color: #555;
-            padding-left: 25px;
-            position: relative;
-        }
-        
-        .tech-stack li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #1976d2;
-            font-weight: bold;
-        }
-        
-        .info-box {
-            margin-top: 30px;
             padding: 20px;
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            border-radius: 5px;
-        }
-        
-        .info-box h4 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-        
-        .info-box p {
-            color: #856404;
-            line-height: 1.6;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 30px;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
-            
-            .features, .demo-links {
-                grid-template-columns: 1fr;
-            }
-            
-            .tech-stack ul {
-                columns: 1;
-            }
+            margin: 40px 0;
+            text-align: center;
+            color: #ffc800;
         }
     </style>
-    <script src="config.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>🤖 AI Robot News Anchor</h1>
-        <p class="subtitle">ระบบสร้างวิดีโอข่าวอัตโนมัติด้วย AI</p>
         
-        <div id="backendStatus" class="status checking">
-            🔄 กำลังตรวจสอบสถานะ Backend...
+        <div class="notice">
+            <h3>💡 Frontend Demo Only</h3>
+            <p>This is a frontend demonstration. The full system requires a GPU server for AI processing.</p>
+            <p><strong>Videos below are pre-generated samples showing actual system output.</strong></p>
         </div>
-        
+
         <div class="features">
             <div class="feature">
-                <h3>🗣️ Text-to-Speech</h3>
-                <p>แปลงข้อความเป็นเสียงพูดภาษาไทยและอังกฤษอย่างเป็นธรรมชาติ</p>
+                <h3>🗣️ Multi-language TTS</h3>
+                <p>Thai & English text-to-speech</p>
             </div>
-            
             <div class="feature">
-                <h3>💋 Lip-Sync Animation</h3>
-                <p>ริมฝีปากขยับตรงกับเสียง พร้อมกระพริบตาแบบธรรมชาติ</p>
+                <h3>💋 Lip-sync</h3>
+                <p>Perfect mouth movement</p>
             </div>
-            
             <div class="feature">
-                <h3>🎭 Facial Control</h3>
-                <p>ควบคุมการขยับหัว, สีหน้า เหมาะสำหรับ News Anchor มืออาชีพ</p>
+                <h3>👁️ Eye Blinking</h3>
+                <p>Natural eye movements</p>
             </div>
-            
             <div class="feature">
-                <h3>🎨 Chroma Key Effects</h3>
-                <p>ลบพื้นหลังสีเขียว + Neural Network Animation แบบเรียลไทม์</p>
+                <h3>🎭 Expression Control</h3>
+                <p>Adjustable facial expressions</p>
             </div>
-            
+            <div class="feature">
+                <h3>🎨 Chroma Key</h3>
+                <p>Green screen removal</p>
+            </div>
             <div class="feature">
                 <h3>📡 Real-time Updates</h3>
-                <p>WebSocket progress tracking พร้อม Live preview ทุกขั้นตอน</p>
-            </div>
-            
-            <div class="feature">
-                <h3>🔔 Auto Notification</h3>
-                <p>แจ้งเตือนวิดีโอใหม่อัตโนมัติ + Auto-play ทันที</p>
+                <p>WebSocket progress tracking</p>
             </div>
         </div>
-        
-        <div class="demo-links">
-            <a href="index.html" class="demo-button" id="createLink">
-                🎬 สร้างวิดีโอ
-                <small>Video Creation Interface</small>
-            </a>
-            
-            <a href="appindex.html" class="demo-button" id="galleryLink">
-                📺 ดูแกลเลอรี่
-                <small>Gallery & Player</small>
-            </a>
+
+        <div class="demo-section">
+            <h2>📹 Demo Videos</h2>
+            <div class="video-grid">
+                <div class="video-card">
+                    <video controls>
+                        <source src="videos/demo1.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-card-info">
+                        <h3>🇹🇭 Thai Language Demo</h3>
+                        <p>AI-generated news anchor speaking Thai</p>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <video controls>
+                        <source src="videos/demo2.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-card-info">
+                        <h3>🇬🇧 English Language Demo</h3>
+                        <p>AI-generated news anchor speaking English</p>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <video controls>
+                        <source src="videos/demo3.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-card-info">
+                        <h3>🇹🇭 Thai Demo 2</h3>
+                        <p>Professional news broadcast style</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        
+
         <div class="tech-stack">
-            <h3>🔧 เทคโนโลยีที่ใช้</h3>
-            <ul>
-                <li>FastAPI (Backend Framework)</li>
-                <li>SadTalker (Lip-sync + Eye Blink)</li>
-                <li>Coqui TTS (English Speech)</li>
-                <li>Google TTS (Thai Speech)</li>
-                <li>WebSocket (Real-time Communication)</li>
-                <li>NVIDIA CUDA (GPU Acceleration)</li>
-                <li>Cloudflare Tunnel (Security)</li>
-                <li>Canvas API (Video Effects)</li>
-            </ul>
+            <h2>🛠️ Technology Stack</h2>
+            <div class="tech-list">
+                <div class="tech-item">FastAPI Backend</div>
+                <div class="tech-item">SadTalker AI</div>
+                <div class="tech-item">Coqui TTS</div>
+                <div class="tech-item">Google TTS</div>
+                <div class="tech-item">PyTorch + CUDA</div>
+                <div class="tech-item">WebSocket</div>
+                <div class="tech-item">HTML5 Canvas</div>
+                <div class="tech-item">Chroma Key</div>
+            </div>
         </div>
-        
-        <div class="info-box">
-            <h4>💡 เกี่ยวกับ Demo นี้</h4>
-            <p>
-                นี่คือระบบ Hybrid Deployment ที่ Frontend (UI) อยู่บน Cloud 
-                แต่ Backend (AI Processing) ทำงานบนเครื่อง Server ที่มี GPU 
-                เพื่อความรวดเร็วและประหยัดค่าใช้จ่าย
-            </p>
+
+        <div class="cta">
+            <h2>🎬 View Full UI</h2>
+            <a href="index.html" class="btn">📝 Creation Interface</a>
+            <a href="appindex.html" class="btn">📺 Player Interface</a>
+        </div>
+
+        <div class="notice" style="margin-top: 60px;">
+            <h3>📊 System Specifications</h3>
+            <p><strong>Processing Time:</strong> 1-2 minutes per video (with GPU)</p>
+            <p><strong>Output Quality:</strong> 1080p HD</p>
+            <p><strong>Languages:</strong> Thai, English</p>
+            <p><strong>Features:</strong> Lip-sync, Eye blink, Head movement, Expression control</p>
         </div>
     </div>
-    
-    <script>
-        // ตรวจสอบสถานะ Backend
-        async function checkBackend() {
-            const statusDiv = document.getElementById('backendStatus');
-            const createLink = document.getElementById('createLink');
-            const galleryLink = document.getElementById('galleryLink');
-            
-            try {
-                console.log('🔍 Checking backend at:', API_CONFIG.BACKEND_URL);
-                
-                const response = await fetch(`${API_CONFIG.BACKEND_URL}/health`, {
-                    method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'Accept': 'application/json'
-                    },
-                    signal: AbortSignal.timeout(5000) // 5 sec timeout
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    statusDiv.className = 'status';
-                    statusDiv.innerHTML = '✅ Backend พร้อมใช้งาน - สามารถสร้างวิดีโอได้เต็มรูปแบบ';
-                    console.log('✅ Backend online:', data);
-                } else {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-            } catch (error) {
-                console.error('❌ Backend check failed:', error);
-                statusDiv.className = 'status offline';
-                statusDiv.innerHTML = `
-                    ⚠️ Backend ไม่พร้อมใช้งาน<br>
-                    <small style="font-weight: normal; font-size: 0.85em; margin-top: 8px; display: block;">
-                    คุณยังสามารถดู UI/UX ได้ แต่ไม่สามารถสร้างวิดีโอได้<br>
-                    Backend URL: ${API_CONFIG.BACKEND_URL}<br>
-                    Error: ${error.message}
-                    </small>
-                `;
-                
-                // แสดง warning บนปุ่ม
-                createLink.style.opacity = '0.6';
-                createLink.style.cursor = 'not-allowed';
-            }
-        }
-        
-        // เช็คทันทีเมื่อโหลดหน้า
-        checkBackend();
-        
-        // เช็คซ้ำทุก 30 วินาที
-        setInterval(checkBackend, 30000);
-    </script>
 </body>
 </html>
