@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สร้างวิดีโอ - AI Robot News Anchor</title>
+    <script src="config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .slider-group {
+            margin-bottom: 25px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+        }
+        
+        .button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            color: #0c5460;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="landing.html" class="back-link">← กลับหน้าหลัก</a>
+        
+        <h1>🎬 สร้างวิดีโอ AI Robot</h1>
+        
+        <div id="statusAlert" class="alert alert-warning">
+            ⚠️ กำลังตรวจสอบ Backend...
+        </div>
+        
+        <div class="form-group">
+            <label>📝 ข้อความที่ต้องการพูด:</label>
+            <textarea id="textInput" placeholder="พิมพ์ข้อความที่ต้องการให้หุ่นยนต์พูด...">สวัสดีครับ ยินดีต้อนรับสู่ระบบ AI Robot News Anchor</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label>🌐 ภาษา:</label>
+            <select id="language">
+                <option value="thai">ไทย (Thai)</option>
+                <option value="english">อังกฤษ (English)</option>
+            </select>
+        </div>
+        
+        <div class="slider-group">
+            <div class="slider-label">
+                <label>🎭 Head Pose Style:</label>
+                <span id="poseValue">0</span>
+            </div>
+            <input type="range" id="poseStyle" min="0" max="46" value="0" 
+                   oninput="document.getElementById('poseValue').textContent = this.value">
+            <small style="color: #666;">0 = นิ่งมาก (News Anchor), 46 = เคลื่อนไหวเยอะ</small>
+        </div>
+        
+        <div class="slider-group">
+            <div class="slider-label">
+                <label>😊 Expression Intensity:</label>
+                <span id="expressionValue">0.3</span>
+            </div>
+            <input type="range" id="expressionScale" min="0" max="2.0" step="0.1" value="0.3" 
+                   oninput="document.getElementById('expressionValue').textContent = this.value">
+            <small style="color: #666;">0.2-0.3 = น้อยมาก (แนะนำ), 2.0 = เยอะมาก</small>
+        </div>
+        
+        <button class="button" onclick="generateVideo()" id="generateBtn">
+            🚀 สร้างวิดีโอ
+        </button>
+    </div>
+    
+    <script>
+        // ตรวจสอบ Backend
+        async function checkBackend() {
+            const statusAlert = document.getElementById('statusAlert');
+            const generateBtn = document.getElementById('generateBtn');
+            
+            try {
+                const response = await fetch(`${API_CONFIG.BACKEND_URL}/health`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    signal: AbortSignal.timeout(5000)
+                });
+                
+                if (response.ok) {
+                    statusAlert.className = 'alert alert-info';
+                    statusAlert.innerHTML = '✅ Backend พร้อมใช้งาน - สามารถสร้างวิดีโอได้';
+                    generateBtn.disabled = false;
+                    return true;
+                }
+            } catch (error) {
+                statusAlert.className = 'alert alert-warning';
+                statusAlert.innerHTML = `
+                    ⚠️ Backend ไม่พร้อมใช้งาน<br>
+                    <small>กรุณาเปิด Backend Server ก่อนใช้งาน</small>
+                `;
+                generateBtn.disabled = true;
+                return false;
+            }
+        }
+        
+        // สร้างวิดีโอ
+        async function generateVideo() {
+            const text = document.getElementById('textInput').value;
+            const language = document.getElementById('language').value;
+            const poseStyle = document.getElementById('poseStyle').value;
+            const expressionScale = document.getElementById('expressionScale').value;
+            
+            if (!text.trim()) {
+                alert('กรุณาพิมพ์ข้อความที่ต้องการพูด');
+                return;
+            }
+            
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = '⏳ กำลังสร้าง...';
+            
+            try {
+                const formData = new FormData();
+                formData.append('text', text);
+                formData.append('language', language);
+                formData.append('pose_style', poseStyle);
+                formData.append('expression_scale', expressionScale);
+                
+                const response = await fetch(`${API_CONFIG.BACKEND_URL}/api/v1/speak`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`✅ วิดีโอถูกสร้างเรียบร้อย!\n\nJob ID: ${data.job_id}`);
+                    
+                    // Redirect to gallery
+                    window.location.href = 'appindex.html';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                alert(`❌ เกิดข้อผิดพลาด: ${error.message}`);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = '🚀 สร้างวิดีโอ';
+            }
+        }
+        
+        // เช็คทันที
+        checkBackend();
+    </script>
+</body>
+</html>
