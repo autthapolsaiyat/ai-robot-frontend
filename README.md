@@ -1,36 +1,27 @@
-# 🤖 AI Robot News Anchor - Frontend
+# 🤖 AI Robot News Anchor - Frontend Demo
 
-ระบบสร้างวิดีโอข่าวอัตโนมัติด้วย AI
+Professional AI-powered news anchor system with advanced features.
+
+## 🌐 Live Demo
+**https://zealous-mushroom-0e8a69d00.6.azurestaticapps.net/landing.html**
 
 ## ✨ Features
-
-- ✅ Text-to-Speech (Thai + English)
-- ✅ Lip-sync Animation with Eye Blinking
-- ✅ Facial Expression Control
-- ✅ Chroma Key Effects
-- ✅ Real-time Progress Updates
-- ✅ Auto Notification System
-
-## 🚀 Demo
-
-- **Landing Page**: https://YOUR-SITE.netlify.app/landing.html
-- **Create Video**: https://YOUR-SITE.netlify.app/index.html
-- **Gallery**: https://YOUR-SITE.netlify.app/appindex.html
-
-## 🏗️ Architecture
-```
-Frontend (Cloud)  ←→  Backend (On-premise)
-Netlify/Vercel        Ubuntu + GPU
-```
+- 🗣️ Multi-language TTS (Thai & English)
+- 💋 Perfect Lip-sync
+- 👁️ Natural Eye Blinking  
+- 🎭 Adjustable Expressions
+- 🎨 Chroma Key Effects
+- 📡 Real-time Updates
 
 ## 🛠️ Tech Stack
+- FastAPI + PyTorch
+- SadTalker AI
+- Coqui TTS / Google TTS
+- WebSocket
+- HTML5 Canvas
 
-- FastAPI (Backend)
-- SadTalker (AI Animation)
-- Coqui TTS / gTTS (Speech)
-- WebSocket (Real-time)
-- Cloudflare Tunnel (Security)
+## 📹 Demo Videos
+3 pre-generated samples included showing actual system output.
 
-## 📝 License
-
-All rights reserved.
+## 💼 Full System
+Contact for production deployment with GPU backend.
