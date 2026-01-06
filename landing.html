@@ -140,6 +140,7 @@
             color: #ffc800;
         }
     </style>
+    <script src="auth.js"></script>
 </head>
 <body>
     <div class="container">
@@ -272,3 +273,20 @@
     </div>
 </body>
 </html>
+<div style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+    <button onclick="logout()" style="
+        background: rgba(255, 0, 0, 0.8);
+        border: 2px solid #ff0000;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 14px;
+    ">
+        🚪 Logout (<span id="username"></span>)
+    </button>
+</div>
+<script>
+    document.getElementById('username').textContent = getUsername();
+</script>

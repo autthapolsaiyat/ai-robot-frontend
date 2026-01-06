@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Robot News Anchor</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+            color: #0f0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-container {
+            background: rgba(0, 255, 0, 0.05);
+            border: 3px solid #00ff00;
+            border-radius: 20px;
+            padding: 60px 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
+        }
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+        }
+        .subtitle {
+            text-align: center;
+            margin-bottom: 40px;
+            opacity: 0.8;
+            font-size: 1.1em;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 10px;
+            color: #0f0;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #00ff00 0%, #00aa00 100%);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        .btn-login:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+            transform: translateY(-2px);
+        }
+        .error {
+            background: rgba(255, 0, 0, 0.1);
+            border: 2px solid #ff0000;
+            color: #ff6666;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+        .demo-hint {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 200, 0, 0.1);
+            border: 2px solid rgba(255, 200, 0, 0.5);
+            border-radius: 10px;
+            color: #ffc800;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>🤖 AI Robot</h1>
+        <p class="subtitle">News Anchor System</p>
+        
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label for="username">👤 Username</label>
+                <input type="text" id="username" placeholder="Enter username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">🔒 Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+            
+            <button type="submit" class="btn-login">
+                🚀 Login
+            </button>
+            
+            <div class="error" id="error">
+                ❌ Invalid username or password
+            </div>
+        </form>
+        
+        <div class="demo-hint">
+            💡 <strong>Demo Access:</strong><br>
+            Username: <code>demo</code><br>
+            Password: <code>demo2025</code>
+        </div>
+    </div>
+
+    <script>
+        // Check if already logged in
+        if (localStorage.getItem('ai_robot_logged_in') === 'true') {
+            window.location.href = 'landing.html';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('error');
+            
+            // Demo credentials
+            const validUsers = {
+                'demo': 'demo2025',
+                'admin': 'admin2025',
+                'guest': 'guest2025'
+            };
+            
+            if (validUsers[username] && validUsers[username] === password) {
+                // Login success
+                localStorage.setItem('ai_robot_logged_in', 'true');
+                localStorage.setItem('ai_robot_username', username);
+                localStorage.setItem('ai_robot_login_time', new Date().toISOString());
+                
+                window.location.href = 'landing.html';
+            } else {
+                // Login failed
+                errorDiv.style.display = 'block';
+                setTimeout(() => {
+                    errorDiv.style.display = 'none';
+                }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>

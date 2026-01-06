@@ -165,12 +165,43 @@
             overflow: hidden;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
         }
         
         .gallery-item:hover {
             border-color: #00ff00;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
             transform: translateX(-5px);
+        }
+        
+        .gallery-item.new {
+            border-color: #00ff00;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 0, 0.8); }
+            50% { box-shadow: 0 0 50px rgba(0, 255, 0, 1); }
+        }
+        
+        .new-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff0000;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.5; }
         }
         
         .gallery-item video {
@@ -211,24 +242,74 @@
             opacity: 0.5;
         }
         
-        /* Notification */
+        /* Notification - ENHANCED */
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: rgba(0, 255, 0, 0.95);
+            background: linear-gradient(135deg, #00ff00 0%, #00aa00 100%);
             color: #000;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 50px rgba(0, 255, 0, 1);
             font-weight: bold;
+            font-size: 18px;
             z-index: 1000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
+            transform: translateX(500px);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 3px solid #00ff00;
+            max-width: 400px;
         }
         
         .notification.show {
             transform: translateX(0);
+        }
+        
+        .notification-title {
+            font-size: 20px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification-icon {
+            font-size: 30px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .notification-body {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+        
+        .notification-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #000;
+            font-size: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        
+        .notification-close:hover {
+            background: rgba(0, 0, 0, 0.1);
         }
         
         /* Scrollbar */
@@ -261,6 +342,11 @@
                 font-size: 14px;
                 min-width: 100px;
             }
+            
+            .notification {
+                right: 10px;
+                max-width: calc(100vw - 20px);
+            }
         }
         
         @media (max-width: 768px) {
@@ -283,7 +369,6 @@
             }
         }
     </style>
-    <script src="auth.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -321,14 +406,21 @@
         </div>
     </div>
     
-    <!-- Notification -->
+    <!-- Notification - ENHANCED -->
     <div class="notification" id="notification">
-        ✅ Video loaded!
+        <button class="notification-close" onclick="closeNotification()">×</button>
+        <div class="notification-title">
+            <span class="notification-icon">🚨</span>
+            <span id="notificationTitle">มีเหตุใหม่เข้ามา!</span>
+        </div>
+        <div class="notification-body" id="notificationBody">
+            พร้อมรายงานจากหุ่นยนต์ AI
+        </div>
     </div>
 
     <script>
-        // API Configuration
-        const API_URL = 'http://10.147.19.244:4188';
+        // 🔥 API Configuration
+        const API_URL = 'http://192.168.1.59:4188';
         
         // Canvas Setup
         const bgCanvas = document.getElementById('bgCanvas');
@@ -344,12 +436,17 @@
         let sensitivity = 40;
         let smoothness = 15;
         
-        // Gallery - เปลี่ยนจาก localStorage เป็นโหลดจาก Server
+        // Gallery
         let videoHistory = [];
+        let lastKnownJobId = localStorage.getItem('lastKnownJobId') || null;
+        let isFirstLoad = true;
         
         // Canvas dimensions
         const CANVAS_WIDTH = 1920;
         const CANVAS_HEIGHT = 1080;
+        
+        // Notification sound (optional)
+        const notificationSound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUKXi8LJnGwU7k9n0yHQpBSh+zPLaizsKElyx6+ikWBMJS6Hh8bllHAU2jdT0znkqBSt/zfPaiTsKElux7OijWRMLTKPi8bhnHQU7ktj0yXMpBSl+zPPaizsKElux7OilWRMLTKLh8bhnHAU6ktf0ynMpBSl+y/PaizsKElux7OilWRMLTKPi8bllHAU6ktj0yXMpBSh+zPPaiTsKElyx7OimWRMLTKLi8bhnHAU7ktf0ynMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OimWRMLTKLh8bhnHAU7ktf0ynMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHQU6ktf0ynQpBSh+y/PaizsKElux7OimWRMLTKPh8bllHAU6ktj0yXMpBSh+zPPaizsKElux7OilWRMLTKPh8bllHQU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLS6Lh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKLh8bhnHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKLh8bhnHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKPh8bllHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKLh8bhnHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLS6Lh8bllHQU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKLh8bhnHAU6ktj0yXMpBSh+y/PaizsKElux7OilWRMLTKLh8bhnHQU6ktf0yXMpBSh+y/PaizsKElux7OilWRMLTKLh8bhnHQU6ktf0yXMpBSl+y/PaizsKElux7OimWRMLTKLh8bhnHQU6ktf0yXQpBSh+y/PaiTsKE1yx7OilWRMLTKPh8bllHQU6ktf0ynMpBSp+y/PaiTsKE1yx7OimWBMLTKPh8bllHQU6ktf0ynMpBSh+zPPaiTsKElux7OimWRMLTKLh8bllHQU6ktf0ynMpBSh+y/PaiTsKE1ux7OimWRMLTKLh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OimWRMLTKPh8bllHQU6ktf0ynMpBSh+y/PaiTsKE1ux7OimWRMLTKLh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OimWRMLTKPh8bllHQU6ktf0ynMpBSh+y/PaiTsKE1ux7OimWRMLTKLh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8bllHQU6ktj0ynMpBSh+y/PaiTsKElux7OilWRMLTKPh8Q==');
         
         // Neural Network
         const layerColors = ['#00CCFF', '#9933FF', '#CC33FF', '#FF6600'];
@@ -474,7 +571,6 @@
                 }
             }
             
-            // Connections
             for (let i = 0; i < nodesPerLayer[0]; i++) {
                 const fromNode = neuralNodes[i];
                 for (let j = 0; j < nodesPerLayer[1]; j++) {
@@ -558,7 +654,6 @@
             }
         }
         
-        // Chroma Key
         function chromaKey(imageData) {
             const data = imageData.data;
             const threshold = sensitivity;
@@ -654,11 +749,10 @@
         initNeuralNetwork();
         animate();
         
-        // Gallery - โหลดจาก Server API
+        // 🔥 Gallery with NEW VIDEO DETECTION
         async function loadGallery() {
             const grid = document.getElementById('galleryGrid');
             
-            // Show loading
             grid.innerHTML = `
                 <div class="empty-gallery">
                     <div class="empty-gallery-icon">⏳</div>
@@ -667,43 +761,77 @@
             `;
             
             try {
-                // เรียก API เพื่อดึงรายการวิดีโอ
+                console.log('📂 Loading gallery from:', `${API_URL}/api/v1/jobs/list?limit=100`);
+                
                 const response = await fetch(`${API_URL}/api/v1/jobs/list?limit=100`);
                 
                 if (!response.ok) {
-                    throw new Error('Failed to load gallery');
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
                 videoHistory = data.jobs || [];
+                
+                console.log('✅ Gallery loaded:', videoHistory.length, 'videos');
                 
                 if (videoHistory.length === 0) {
                     grid.innerHTML = `
                         <div class="empty-gallery">
                             <div class="empty-gallery-icon">🎬</div>
                             <p>No videos in gallery</p>
-                            <p style="font-size: 12px; margin-top: 10px; opacity: 0.7;">
-                                Videos will appear here after generation
-                            </p>
                         </div>
                     `;
                     return;
                 }
                 
-                grid.innerHTML = videoHistory.map((item, index) => `
-                    <div class="gallery-item" onclick="playGalleryVideo('${item.job_id}')">
-                        <video preload="metadata">
-                            <source src="${API_URL}/api/v1/jobs/${item.job_id}/result#t=0.5" type="video/mp4">
-                        </video>
-                        <div class="gallery-item-info">
-                            <div class="gallery-item-date">📅 ${new Date(item.created_at).toLocaleString('th-TH')}</div>
-                            <div class="gallery-item-text">${item.text}</div>
+                // 🔥 ตรวจสอบว่ามีวิดีโอใหม่หรือไม่
+                const latestJob = videoHistory[0];
+                const hasNewVideo = latestJob && latestJob.job_id !== lastKnownJobId;
+                
+                if (hasNewVideo && !isFirstLoad) {
+                    console.log('🚨 NEW VIDEO DETECTED:', latestJob.job_id);
+                    
+                    // แสดง notification
+                    showNotification(
+                        'มีเหตุใหม่เข้ามา!',
+                        `พร้อมรายงาน: ${latestJob.text.substring(0, 50)}...`
+                    );
+                    
+                    // Auto-play วิดีโอใหม่
+                    setTimeout(() => {
+                        playGalleryVideo(latestJob.job_id);
+                    }, 2000);
+                    
+                    // บันทึก job_id ใหม่
+                    lastKnownJobId = latestJob.job_id;
+                    localStorage.setItem('lastKnownJobId', lastKnownJobId);
+                }
+                
+                // ถ้าเป็นครั้งแรก บันทึก lastKnownJobId
+                if (isFirstLoad && latestJob) {
+                    lastKnownJobId = latestJob.job_id;
+                    localStorage.setItem('lastKnownJobId', lastKnownJobId);
+                    isFirstLoad = false;
+                }
+                
+                grid.innerHTML = videoHistory.map((item, index) => {
+                    const isNew = index === 0 && item.job_id === latestJob.job_id && hasNewVideo;
+                    return `
+                        <div class="gallery-item ${isNew ? 'new' : ''}" onclick="playGalleryVideo('${item.job_id}')">
+                            ${isNew ? '<div class="new-badge">NEW</div>' : ''}
+                            <video preload="metadata">
+                                <source src="${API_URL}/api/v1/jobs/${item.job_id}/result#t=0.5" type="video/mp4">
+                            </video>
+                            <div class="gallery-item-info">
+                                <div class="gallery-item-date">📅 ${new Date(item.created_at).toLocaleString('th-TH')}</div>
+                                <div class="gallery-item-text">${item.text}</div>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
                 
             } catch (error) {
-                console.error('Failed to load gallery:', error);
+                console.error('❌ Failed to load gallery:', error);
                 grid.innerHTML = `
                     <div class="empty-gallery">
                         <div class="empty-gallery-icon">⚠️</div>
@@ -721,30 +849,52 @@
         
         function playGalleryVideo(job_id) {
             const videoUrl = `${API_URL}/api/v1/jobs/${job_id}/result`;
+            console.log('▶️ Playing video:', videoUrl);
+            
             video.src = videoUrl;
             video.load();
             video.addEventListener('loadedmetadata', () => {
                 isVideoLoaded = true;
                 playVideoBtn.disabled = false;
                 pauseVideoBtn.disabled = false;
-                video.play();
+                video.play().catch(e => console.warn('Play blocked:', e));
                 isPlaying = true;
-                showNotification('✅ Video loaded!');
-            });
+                showNotification('วิดีโอกำลังเล่น', 'รายงานข่าวจากหุ่นยนต์ AI');
+            }, { once: true });
         }
         
-        function showNotification(message) {
+        // 🔥 NOTIFICATION SYSTEM
+        function showNotification(title, body) {
             const notification = document.getElementById('notification');
-            notification.textContent = message;
+            const notificationTitle = document.getElementById('notificationTitle');
+            const notificationBody = document.getElementById('notificationBody');
+            
+            notificationTitle.textContent = title;
+            notificationBody.textContent = body;
+            
             notification.classList.add('show');
             
-            if (navigator.vibrate) {
-                navigator.vibrate([200, 100, 200]);
+            // เล่นเสียง (optional)
+            try {
+                notificationSound.play().catch(e => console.log('Sound play blocked'));
+            } catch (e) {
+                console.log('Sound not available');
             }
             
+            // Vibrate (mobile)
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200, 100, 200]);
+            }
+            
+            // Auto-hide หลัง 8 วินาที
             setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
+                closeNotification();
+            }, 8000);
+        }
+        
+        function closeNotification() {
+            const notification = document.getElementById('notification');
+            notification.classList.remove('show');
         }
         
         // Controls
@@ -775,12 +925,15 @@
         });
         
         // Initialize
+        console.log('🚀 App initialized');
+        console.log('🌐 API URL:', API_URL);
         loadGallery();
         
-        // Auto-refresh gallery every 30 seconds from Server
+        // 🔥 Auto-check for new videos every 10 seconds
         setInterval(() => {
+            console.log('🔄 Checking for new videos...');
             loadGallery();
-        }, 30000);
+        }, 10000);
     </script>
 </body>
 </html>
