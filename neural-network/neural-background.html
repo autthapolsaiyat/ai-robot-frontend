@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Neural Network Background Generator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Courier New', monospace;
+            color: #0f0;
+        }
+        canvas {
+            border: 1px solid #333;
+            margin: 20px 0;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #0d0;
+        }
+        .info {
+            text-align: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Neural Network Background Generator</h1>
+    <div class="info">
+        <p>This will generate a 10-second looping background video</p>
+        <p>Resolution: 1920x1080 (Full HD)</p>
+    </div>
+    <div class="controls">
+        <button id="startBtn">Start Recording (10s)</button>
+        <button id="downloadBtn" disabled>Download Video</button>
+    </div>
+    <canvas id="networkCanvas"></canvas>
+    <div class="info" id="status">Ready to record</div>
+
+    <script>
+        const canvas = document.getElementById('networkCanvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusDiv = document.getElementById('status');
+
+        // Full HD resolution
+        canvas.width = 1920;
+        canvas.height = 1080;
+
+        let mediaRecorder;
+        let recordedChunks = [];
+
+        // Matrix Rain Effect
+        const matrixChars = '01';
+        let fontSize = 20;
+        let columns = canvas.width / fontSize;
+        let drops = [];
+
+        function initMatrixRain() {
+            columns = canvas.width / fontSize;
+            drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * canvas.height / fontSize;
+            }
+        }
+
+        initMatrixRain();
+
+        function drawMatrixRain() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = matrixChars.charAt(Math.floor(Math.random() * matrixChars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i] += 1;
+            }
+        }
+
+        // Neural Network
+        const layers = [12, 18, 18, 18, 10];
+        const nodes = [];
+        const connections = [];
+
+        const layerSpacing = canvas.width / (layers.length + 1);
+
+        layers.forEach((nodeCount, layerIndex) => {
+            const layerNodes = [];
+            const nodeSpacing = canvas.height / (nodeCount + 1);
+            
+            for (let i = 0; i < nodeCount; i++) {
+                layerNodes.push({
+                    x: layerSpacing * (layerIndex + 1),
+                    y: nodeSpacing * (i + 1),
+                    radius: 18,
+                    activation: Math.random(),
+                    pulsePhase: Math.random() * Math.PI * 2,
+                    colorIndex: (layerIndex + i) % 5
+                });
+            }
+            nodes.push(layerNodes);
+        });
+
+        for (let i = 0; i < nodes.length - 1; i++) {
+            for (let j = 0; j < nodes[i].length; j++) {
+                for (let k = 0; k < nodes[i + 1].length; k++) {
+                    connections.push({
+                        from: nodes[i][j],
+                        to: nodes[i + 1][k],
+                        weight: Math.random(),
+                        flowPhase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+        }
+
+        let time = 0;
+
+        const colorPalette = [
+            { hue: 180 },
+            { hue: 280 },
+            { hue: 330 },
+            { hue: 60 },
+            { hue: 120 }
+        ];
+
+        function drawConnection(conn, t) {
+            const flowSpeed = 3;
+            let flowPosition = (Math.sin(t * flowSpeed + conn.flowPhase) + 1) / 2;
+            
+            const particleX = conn.from.x + (conn.to.x - conn.from.x) * flowPosition;
+            const particleY = conn.from.y + (conn.to.y - conn.from.y) * flowPosition;
+            
+            const baseAlpha = 0.1 + conn.weight * 0.15;
+            const hue = conn.weight * 60 + 180;
+            
+            ctx.strokeStyle = `hsla(${hue}, 70%, 50%, ${baseAlpha})`;
+            ctx.lineWidth = 0.5 + conn.weight * 0.8;
+            ctx.beginPath();
+            ctx.moveTo(conn.from.x, conn.from.y);
+            ctx.lineTo(conn.to.x, conn.to.y);
+            ctx.stroke();
+            
+            const particleSize = 3 + conn.weight * 3;
+            const particleGlow = particleSize * 3;
+            
+            const particleGradient = ctx.createRadialGradient(
+                particleX, particleY, 0,
+                particleX, particleY, particleGlow
+            );
+            
+            particleGradient.addColorStop(0, `hsla(${hue}, 100%, 80%, 0.8)`);
+            particleGradient.addColorStop(0.3, `hsla(${hue}, 90%, 60%, 0.5)`);
+            particleGradient.addColorStop(1, `hsla(${hue}, 80%, 40%, 0)`);
+            
+            ctx.fillStyle = particleGradient;
+            ctx.beginPath();
+            ctx.arc(particleX, particleY, particleGlow, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawNode(node, t) {
+            const pulse = Math.sin(t * 3 + node.pulsePhase) * 0.2 + 0.8;
+            const glowSize = node.radius + pulse * 8;
+            
+            const color = colorPalette[node.colorIndex];
+            const hue = color.hue + node.activation * 20;
+            
+            const gradient = ctx.createRadialGradient(
+                node.x, node.y, 0,
+                node.x, node.y, glowSize
+            );
+            
+            gradient.addColorStop(0, `hsla(${hue}, 80%, 60%, 0.7)`);
+            gradient.addColorStop(0.5, `hsla(${hue}, 80%, 50%, 0.25)`);
+            gradient.addColorStop(1, `hsla(${hue}, 80%, 40%, 0)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = `hsla(${hue}, 85%, 65%, ${0.8 + pulse * 0.1})`;
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function animate() {
+            time += 0.016;
+            
+            drawMatrixRain();
+            
+            connections.forEach(conn => drawConnection(conn, time));
+            
+            nodes.forEach(layer => {
+                layer.forEach(node => {
+                    node.activation += (Math.random() - 0.5) * 0.02;
+                    node.activation = Math.max(0, Math.min(1, node.activation));
+                    drawNode(node, time);
+                });
+            });
+            
+            requestAnimationFrame(animate);
+        }
+
+        startBtn.addEventListener('click', async () => {
+            const stream = canvas.captureStream(30);
+            mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'video/webm;codecs=vp9',
+                videoBitsPerSecond: 8000000
+            });
+
+            recordedChunks = [];
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    recordedChunks.push(e.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                downloadBtn.disabled = false;
+                downloadBtn.onclick = () => {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'neural-background.webm';
+                    a.click();
+                };
+                statusDiv.textContent = 'Recording complete! Click Download Video';
+            };
+
+            startBtn.disabled = true;
+            mediaRecorder.start();
+            statusDiv.textContent = 'Recording... 0s / 10s';
+
+            let seconds = 0;
+            const interval = setInterval(() => {
+                seconds++;
+                statusDiv.textContent = `Recording... ${seconds}s / 10s`;
+                if (seconds >= 10) {
+                    clearInterval(interval);
+                    mediaRecorder.stop();
+                    startBtn.disabled = false;
+                }
+            }, 1000);
+        });
+
+        animate();
+    </script>
+</body>
+</html>
