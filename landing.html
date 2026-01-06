@@ -14,7 +14,7 @@
             padding: 20px;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
         h1 {
@@ -35,6 +35,11 @@
             border-radius: 10px;
             padding: 20px;
             text-align: center;
+            transition: all 0.3s;
+        }
+        .feature:hover {
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
         }
         .feature h3 {
             margin-bottom: 10px;
@@ -50,7 +55,7 @@
         }
         .video-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
         }
         .video-card {
@@ -68,9 +73,18 @@
         .video-card video {
             width: 100%;
             display: block;
+            background: #000;
         }
         .video-card-info {
             padding: 15px;
+        }
+        .video-card-info h3 {
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        .video-card-info p {
+            font-size: 0.9em;
+            opacity: 0.8;
         }
         .tech-stack {
             margin: 60px 0;
@@ -132,9 +146,9 @@
         <h1>🤖 AI Robot News Anchor</h1>
         
         <div class="notice">
-            <h3>💡 Frontend Demo Only</h3>
-            <p>This is a frontend demonstration. The full system requires a GPU server for AI processing.</p>
-            <p><strong>Videos below are pre-generated samples showing actual system output.</strong></p>
+            <h3>💡 Frontend Demo - Real AI-Generated Videos</h3>
+            <p>Videos below are actual output from our AI system.</p>
+            <p><strong>Each video was generated using SadTalker AI with Thai/English Text-to-Speech.</strong></p>
         </div>
 
         <div class="features">
@@ -143,8 +157,8 @@
                 <p>Thai & English text-to-speech</p>
             </div>
             <div class="feature">
-                <h3>💋 Lip-sync</h3>
-                <p>Perfect mouth movement</p>
+                <h3>💋 Perfect Lip-sync</h3>
+                <p>Mouth movement matches audio</p>
             </div>
             <div class="feature">
                 <h3>👁️ Eye Blinking</h3>
@@ -165,33 +179,63 @@
         </div>
 
         <div class="demo-section">
-            <h2>📹 Demo Videos</h2>
+            <h2>📹 AI-Generated Demo Videos</h2>
+            <p style="text-align: center; margin-bottom: 30px; opacity: 0.8;">
+                All videos below were created by our AI system - click play to watch
+            </p>
             <div class="video-grid">
                 <div class="video-card">
-                    <video controls>
-                        <source src="videos/demo1.mp4" type="video/mp4">
+                    <video controls preload="metadata">
+                        <source src="videos/real1.mp4" type="video/mp4">
                     </video>
                     <div class="video-card-info">
-                        <h3>🇹🇭 Thai Language Demo</h3>
-                        <p>AI-generated news anchor speaking Thai</p>
+                        <h3>🇹🇭 Thai News Report #1</h3>
+                        <p>Professional news anchor style with minimal expressions</p>
                     </div>
                 </div>
                 <div class="video-card">
-                    <video controls>
-                        <source src="videos/demo2.mp4" type="video/mp4">
+                    <video controls preload="metadata">
+                        <source src="videos/real2.mp4" type="video/mp4">
                     </video>
                     <div class="video-card-info">
-                        <h3>🇬🇧 English Language Demo</h3>
-                        <p>AI-generated news anchor speaking English</p>
+                        <h3>🇬🇧 English News Report</h3>
+                        <p>AI-generated English voice with lip-sync</p>
                     </div>
                 </div>
                 <div class="video-card">
-                    <video controls>
-                        <source src="videos/demo3.mp4" type="video/mp4">
+                    <video controls preload="metadata">
+                        <source src="videos/real3.mp4" type="video/mp4">
                     </video>
                     <div class="video-card-info">
-                        <h3>🇹🇭 Thai Demo 2</h3>
-                        <p>Professional news broadcast style</p>
+                        <h3>🇹🇭 Thai News Report #2</h3>
+                        <p>Natural eye blinking and head movement</p>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <video controls preload="metadata">
+                        <source src="videos/real4.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-card-info">
+                        <h3>🇹🇭 Investigation Report</h3>
+                        <p>Detailed news reporting with AI voice</p>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <video controls preload="metadata">
+                        <source src="videos/real5.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-card-info">
+                        <h3>🇹🇭 Breaking News Style</h3>
+                        <p>Professional broadcast quality</p>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <video controls preload="metadata">
+                        <source src="videos/real6.mp4" type="video/mp4">
+                    </video>
+                    <div class="video-card-info">
+                        <h3>🇹🇭 Feature Report</h3>
+                        <p>AI-powered news anchor demonstration</p>
                     </div>
                 </div>
             </div>
@@ -205,14 +249,14 @@
                 <div class="tech-item">Coqui TTS</div>
                 <div class="tech-item">Google TTS</div>
                 <div class="tech-item">PyTorch + CUDA</div>
+                <div class="tech-item">NVIDIA GPU</div>
                 <div class="tech-item">WebSocket</div>
                 <div class="tech-item">HTML5 Canvas</div>
-                <div class="tech-item">Chroma Key</div>
             </div>
         </div>
 
         <div class="cta">
-            <h2>🎬 View Full UI</h2>
+            <h2>🎬 Explore Full Interface</h2>
             <a href="index.html" class="btn">📝 Creation Interface</a>
             <a href="appindex.html" class="btn">📺 Player Interface</a>
         </div>
@@ -222,7 +266,8 @@
             <p><strong>Processing Time:</strong> 1-2 minutes per video (with GPU)</p>
             <p><strong>Output Quality:</strong> 1080p HD</p>
             <p><strong>Languages:</strong> Thai, English</p>
-            <p><strong>Features:</strong> Lip-sync, Eye blink, Head movement, Expression control</p>
+            <p><strong>GPU Required:</strong> NVIDIA RTX 3060 or better</p>
+            <p><strong>Backend:</strong> Ubuntu Server + FastAPI + PyTorch</p>
         </div>
     </div>
 </body>
